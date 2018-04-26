@@ -7,7 +7,7 @@
     <link href="http://getbootstrap.com/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <link href="http://getbootstrap.com/examples/jumbotron-narrow/jumbotron-narrow.css" rel="stylesheet">
-    <link href="../static/signup.css" rel="stylesheet">
+    <link href="static/signup.css" rel="stylesheet">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css">
 
   </head>
@@ -18,17 +18,150 @@
 
       <div class="jumbotron">
         <h2>Verify your voice to finish logging in</h2>
-        {% if err %}
-          <div class="alert alert-danger" id="userAuthErr">Your voice did not match your username. Please try again.</div>
-        {% endif %}
         <form role="form" class="form-signin" method="post" enctype="multipart/form-data">
-          <div id="recog" class="audio-samples">
-            <label class="audio-label"> Recording: </label>
-            <input type=file name="file">
-          </div>
+          <button onclick="startRecording(this);">record</button>
+          <button onclick="stopRecording(this);" disabled>stop</button>
+
+          <ul id="recordingslist"></ul>
           <button id="btnSignUp" value="upload" type="submit" class="btn btn-lg btn-primary btn-block" type="button">Log in</button>
         </form>
       </div>
     </div>
+
+    <h2>Log</h2>
+  <pre id="log"></pre>
+  <script src="lib/WavAudioEncoder.min.js"></script>
+    <script src="http://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      
+
+  var blobUrl;
+  var blobData;
+  var encodedBlob;
+
+  function __log(e, data) {
+    log.innerHTML += "\n" + e + " " + (data || '');
+  }
+
+  var audio_context;
+  var recorder;
+
+  function startUserMedia(stream) {
+    var input = audio_context.createMediaStreamSource(stream);
+    __log('Media stream created.');
+
+    // Uncomment if you want the audio to feedback directly
+    //input.connect(audio_context.destination);
+    //__log('Input connected to audio context destination.');
+    
+    recorder = new Recorder(input);
+    __log('Recorder initialised.');
+  }
+
+  function startRecording(button) {
+    recorder.clear();
+    recorder && recorder.record();
+    button.disabled = true;
+    button.nextElementSibling.disabled = false;
+    __log('Recording...');
+    document.getElementById("recordingslist").innerHTML = "";
+  }
+
+  function stopRecording(button) {
+    recorder && recorder.stop();
+    button.disabled = true;
+    button.previousElementSibling.disabled = false;
+    __log('Stopped recording.');
+    
+    // create WAV download link using audio data blob
+    createDownloadLink();
+    
+    
+  }
+
+  function createDownloadLink() {
+
+    recorder && recorder.getBuffer(function(buffers){
+      encoder = new WavAudioEncoder(16000, 1);
+      encoder.encode(buffers);
+      encodedBlob = encoder.finish();
+    });
+
+    recorder && recorder.exportWAV(function(blob) {
+      blobData = blob;
+      console.log(blobData);
+      var url = URL.createObjectURL(blob);
+      blobUrl = url;
+      var li = document.createElement('li');
+      var au = document.createElement('audio');
+      var hf = document.createElement('a');
+      
+      au.controls = true;
+      au.src = url;
+      hf.href = url;
+      hf.download = new Date().toISOString() + '.wav';
+      hf.innerHTML = hf.download;
+      li.appendChild(au);
+      li.appendChild(hf);
+      document.getElementById("recordingslist").appendChild(li);
+    });
+  }
+
+  window.onload = function init() {
+    try {
+      // webkit shim
+      window.AudioContext = window.AudioContext || window.webkitAudioContext;
+      navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia;
+      window.URL = window.URL || window.webkitURL;
+      
+      audio_context = new AudioContext;
+      __log('Audio context set up.');
+      __log('navigator.getUserMedia ' + (navigator.getUserMedia ? 'available.' : 'not present!'));
+    } catch (e) {
+      alert('No web audio support in this browser!');
+    }
+    
+    navigator.getUserMedia({audio: true}, startUserMedia, function(e) {
+      __log('No live audio input: ' + e);
+    });
+  };
+  </script>
+
+  <script src="dist/recorder.js"></script>
+    
+  <script type="text/javascript">
+  $('#btnSignUp').click(function() {
+        var userName = window.localStorage.getItem('loginName');
+        var profileId = JSON.parse(window.localStorage.getItem(userName)).profileId;
+
+        alert(profileId);
+
+        var params = {
+            // Request parameters
+            "shortAudio": "True",
+        };
+
+
+        $.ajax({
+            url: "https://westus.api.cognitive.microsoft.com/spid/v1.0/identify?identificationProfileIds="+profileId+ "&" + $.param(params),
+            beforeSend: function(xhrObj){
+                // Request headers
+                xhrObj.setRequestHeader("Content-Type","application/octet-stream");
+                xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key","fbe9b16688bf4ba98e8d5d3631f10472");
+            },
+            type: "POST",
+            // Request body
+            data: encodedBlob
+        })
+        .done(function(data) {
+            alert("success");
+            console.log(data);
+        })
+        .fail(function() {
+            alert("error");
+        });
+    })
+
+    </script>
   </body>
 </html>

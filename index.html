@@ -23,12 +23,30 @@
           <input type="name" name="inputUsrname" id="inputUsrname" class="form-control" placeholder="Username" required autofocus>
           <label for="pswrd" class="sr-only">Password</label>
           <input type="password" name="pswrd" id="pswrd" class="form-control" placeholder="Password" required autofocus>
-          <button value="upload" type="submit" id="btnPswrdAuth" class="btn btn-lg btn-primary btn-block" type="button">Next</button>
+          <button value="upload" id="btnPswrdAuth" class="btn btn-lg btn-primary btn-block" type="button">Next</button>
         </form>
         <p id="account"> Don't have an account? </p>
         <a id="signup" href="/voice-authentication/signup">Sign up<a>
       </div>
 
     </div>
+    <script src="http://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script>
+      $('#btnPswrdAuth').click(function(){
+        alert('Pressed');
+        var profileId = JSON.parse(window.localStorage.getItem($('#inputUsrname').val())).profileId;
+        var pass = JSON.parse(window.localStorage.getItem($('#inputUsrname').val())).password;
+
+        if(profileId != undefined && $('#pswrd').val() == pass ){
+            window.localStorage.setItem('loginName',$('#inputUsrname').val());
+            window.localStorage.setItem('loginPass',$('#pswrd').val());
+            window.location.href="/voice-authentication/recognize";
+        }
+        else{
+          alert('Wrong Credentials or Account doesn\'t exists.');
+        }
+      })
+
+    </script>
   </body>
 </html>

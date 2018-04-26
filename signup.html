@@ -49,11 +49,13 @@
   <h2>Log</h2>
   <pre id="log"></pre>
 
-
+  <script src="lib/WavAudioEncoder.min.js"></script>
   <script src="http://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
   <script>
   var blobUrl;
   var blobData;
+  var encodedBlob;
+
   function __log(e, data) {
     log.innerHTML += "\n" + e + " " + (data || '');
   }
@@ -95,8 +97,15 @@
   }
 
   function createDownloadLink() {
+
+    recorder && recorder.getBuffer(function(buffers){
+      encoder = new WavAudioEncoder(16000, 1);
+      encoder.encode(buffers);
+      encodedBlob = encoder.finish();
+    });
+
     recorder && recorder.exportWAV(function(blob) {
-      blobData = new Uint8Array(blob);
+      blobData = blob;
       console.log(blobData);
       var url = URL.createObjectURL(blob);
       blobUrl = url;
@@ -135,7 +144,7 @@
   };
   </script>
 
-  <script src="../dist/recorder.js"></script>
+  <script src="dist/recorder.js"></script>
     
   <script type="text/javascript">
   $('#btnSignUp').click(function() {
@@ -172,12 +181,13 @@
             },
             type: "POST",
             contentType: 'application/octet-stream',
-            processData: true, 
+            processData: false, 
             // Request body
-            data: blobData
+            data: encodedBlob
             })
             .done(function(data) {
-                alert("success");
+                alert("Successfully Registered");
+                window.location.href = "/voice-authentication/index"
             })
             .fail(function() {
                 alert("error");
