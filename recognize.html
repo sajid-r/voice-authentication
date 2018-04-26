@@ -23,7 +23,7 @@
           <button onclick="stopRecording(this);" disabled>stop</button>
 
           <ul id="recordingslist"></ul>
-          <button id="btnSignUp" value="upload" type="submit" class="btn btn-lg btn-primary btn-block" type="button">Log in</button>
+          <button id="btnSignUp" value="upload" class="btn btn-lg btn-primary btn-block" type="button">Log in</button>
         </form>
       </div>
     </div>
@@ -131,10 +131,14 @@
     
   <script type="text/javascript">
   $('#btnSignUp').click(function() {
+
+        // setTimeout(function()
+        //   {   window.location.href="static/hurray.gif"; 
+        //   }, 3000);
         var userName = window.localStorage.getItem('loginName');
         var profileId = JSON.parse(window.localStorage.getItem(userName)).profileId;
 
-        alert(profileId);
+        // alert(profileId);
 
         var params = {
             // Request parameters
