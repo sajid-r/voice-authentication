@@ -19,11 +19,13 @@
       <div class="jumbotron">
         <h2>Verify your voice to finish logging in</h2>
         <form role="form" class="form-signin" method="post" enctype="multipart/form-data">
-          <button onclick="startRecording(this);">record</button>
-          <button onclick="stopRecording(this);" disabled>stop</button>
+          <button class="btn btn-default" type="button" onclick="startRecording(this);">record</button>
+          <button class="btn btn-default" type="button" onclick="stopRecording(this);" disabled>stop</button>
 
           <ul id="recordingslist"></ul>
           <button id="btnSignUp" value="upload" class="btn btn-lg btn-primary btn-block" type="button">Log in</button>
+          <i id="spinner" class="fa fa-spinner fa-spin" style="font-size:24px"></i>
+
         </form>
       </div>
     </div>
@@ -109,6 +111,7 @@
 
   window.onload = function init() {
     try {
+      $('#spinner').hide();
       // webkit shim
       window.AudioContext = window.AudioContext || window.webkitAudioContext;
       navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia;
@@ -131,7 +134,7 @@
     
   <script type="text/javascript">
   $('#btnSignUp').click(function() {
-
+        $('#spinner').show();
         // setTimeout(function()
         //   {   window.location.href="static/hurray.gif"; 
         //   }, 3000);
@@ -159,6 +162,7 @@
             data: encodedBlob
         })
         .done(function(data) {
+            $('#spinner').hide();
             alert("success");
             console.log(data);
             window.location.href = "/voice-authentication/static/hurray.gif"

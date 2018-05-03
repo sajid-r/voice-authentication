@@ -11,6 +11,7 @@
   <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- <link href="https://gist.githubusercontent.com/hellt/bc4fc51d6f1b9584605517f5c8d6a5a0/raw/1541916ad019f8b5349d7353489b6fd2d36513dd/jumbotron-narrow.css" rel="stylesheet"> -->
+
     <link href="/voice-authentication/static/signup.css" rel="stylesheet">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css">
     <style>
@@ -32,13 +33,13 @@
           <input type="password" name="pswrd" id="pswrd" class="form-control" placeholder="Password">
           <p >Record your voice (Recommended 30 seconds minimum)</p>
           
-          <button onclick="startRecording(this);">record</button>
-          <button onclick="stopRecording(this);" disabled>stop</button>
+          <button class="btn btn-default" type="button" onclick="startRecording(this);">record</button>
+          <button class="btn btn-default" type="button" onclick="stopRecording(this);" disabled>stop</button>
 
           <ul id="recordingslist"></ul>
 
           <button id="btnSignUp" class="btn btn-lg btn-primary btn-block" type="button">Sign up</button>
-
+          <i id="spinner" class="fa fa-spinner fa-spin" style="font-size:24px"></i>
 
         </form>
         <p id="account"> Already have an account? </p>
@@ -127,6 +128,7 @@
 
   window.onload = function init() {
     try {
+      $('#spinner').hide();
       // webkit shim
       window.AudioContext = window.AudioContext || window.webkitAudioContext;
       navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia;
@@ -149,6 +151,7 @@
     
   <script type="text/javascript">
   $('#btnSignUp').click(function() {
+    $('#spinner').show();
         var params = {
             // Request parameters
             "shortAudio": "True",
@@ -188,6 +191,7 @@
             })
             .done(function(data) {
                 alert("Successfully Registered");
+                $('#spinner').hide();
                 window.location.href = "/voice-authentication/index"
             })
             .fail(function() {
