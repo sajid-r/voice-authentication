@@ -173,11 +173,32 @@
             // Request body
             data: encodedBlob
         })
-        .done(function(data) {
-            $('#spinner').hide();
-              alert("Login Successful");
-              console.log(data);
-              window.location.href = "/voice-authentication/static/hurray.gif"            
+        .done(function(data, textStatus, xhr) {
+            activityURL = xhr.getResponseHeader('operation-location')
+            console.log("A")
+            var settings2 = {
+              "async": true,
+              "crossDomain": true,
+              "url": activityURL,
+              "method": "GET",
+              "headers": {
+                "ocp-apim-subscription-key": "fbe9b16688bf4ba98e8d5d3631f10472",
+              }
+            }
+
+            $.ajax(settings2).done(function (response2, textStatus, xhr) {
+              console.log(response2)
+              matched = response2.processingResult.identifiedProfileId;
+              // if (matched == "00000000-0000-0000-0000-000000000000"){
+              //   alert("Login Failed. Try again")
+              // }
+              // else{
+              //   $('#spinner').hide();
+              //   alert("Login Successful");
+              //   console.log(data);
+              //   window.location.href = "/voice-authentication/static/hurray.gif"
+              // }
+            });            
         })
         .fail(function() {
             alert("error");
