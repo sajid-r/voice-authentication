@@ -66,17 +66,7 @@ def internal_error(error=None):
 #Routing function
 
 ##Returns the UID for a username
-@app.route('/voiceauth/register', methods=['POST', 'OPTIONS'])
-@cross_origin()
 def register():
-    if not request.json or not 'username' in request.json  or not 'password' in request.json  or not 'blob' in request.json:
-        abort(400)
-
-    username = request.json['username']
-    password = request.json['password']
-    blob = request.json['blob']
-
-
     url = "https://westus.api.cognitive.microsoft.com/spid/v1.0/identificationProfiles"
     headers = {
         'Content-Type': 'application/json',
@@ -88,10 +78,24 @@ def register():
     data = response.json()
     msUID = data['identificationProfileId']
 
-    ##voiceIt
-    
+    return msuid
 
-    return jsonify({'identificationProfileId': data['identificationProfileId']}), 201
+def enroll_user(username,blob):
+	msuid = register()
+
+	ref.child(username).update({
+      'uid':msuid
+      })
+
+	url = "https://westus.api.cognitive.microsoft.com/spid/v1.0/identificationProfiles/"+msuid+"/enroll?shortAudio=True"
+    headers = {
+        'Content-Type': 'application/octet-stream',
+        'ocp-apim-subscription-key': msApiKey
+        }
+    response = requests.request("POST", url, headers=headers, data=blob)
+    data = response.json()
+
+    return 1
 
 
 
@@ -111,10 +115,12 @@ def signup():
     return jsonify({"result":"already exists"}), 201
 
   else:
-    ref.child(username).push({
+    ref.child(username).set({
       'password':password
       })
     return jsonify({"result":"sucessful"}), 201
+
+
 
 
 @app.route('/voiceauth/enroll', methods=['POST', 'OPTIONS'])
@@ -126,7 +132,58 @@ def enroll():
   status = enroll_user(username,request.data)
   if status==1:
   	return jsonify({"result":"sucessful"}), 201
+  else:
+  	return jsonify({"result":"not succesful"}), 201
 
+
+
+
+@app.route('/voiceauth/signin', methods=['POST', 'OPTIONS'])
+@cross_origin()
+def signin():
+  if not request.json or not 'username' in request.json  or not 'password' in request.json:
+        abort(400)
+
+  username = request.json['username']
+  password = request.json['password']
+
+  snapshot = ref.child(username).get()
+
+  if snapshot==None:
+  	return jsonify({"result":"user not found", "code":0}), 201
+
+  pwd = ref.child(username).get()['password']
+
+  if(password!=pwd):
+  	return jsonify({"result":"wrong password", "code":-1}), 201
+  else:
+  	return jsonify({"result":"succesful", "code":1}), 201
+
+
+
+
+@app.route('/voiceauth/identification', methods=['POST', 'OPTIONS'])
+@cross_origin()
+def identification():
+  if not request.json or not 'username' in request.json  or not 'blob' in request.json:
+        abort(400)
+
+  username = request.json['username']
+  blob = request.json['password']
+
+  snapshot = ref.child(username).get()
+
+  if snapshot==None:
+  	return jsonify({"result":"user not found", "code":0}), 201
+  
+  uid = ref.child(username).get()['uid']
+
+  status = identify_user(uid,blob)
+
+  if status==1:
+  	return jsonify({"result":"sucessful"}), 201
+  else:
+  	return jsonify({"result":"not succesful"}), 201
 
 
 

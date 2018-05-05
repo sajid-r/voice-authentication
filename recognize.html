@@ -18,6 +18,10 @@
 
       <div class="jumbotron">
         <h2>Verify your voice to finish logging in</h2>
+        <p >Record your voice (Read the following words)</p>
+        <br>
+        <p id="randomtext" style="font-size: 16px"></p>
+        <br>
         <form role="form" class="form-signin" method="post" enctype="multipart/form-data">
           <button class="btn btn-default" type="button" onclick="startRecording(this);">record</button>
           <button class="btn btn-default" type="button" onclick="stopRecording(this);" disabled>stop</button>
@@ -110,6 +114,14 @@
   }
 
   window.onload = function init() {
+    var randomWord = ['adjustments lift folders conversions retailer characteristics secretary fathoms electrons twos',
+'patterns pupil fillers rigging fractions hoofs procurements admiral agreement illustrations',
+'item soap compresses regrets schoolhouses mists linkages notes leg cements',
+'exchanger beliefs curves caves rakes measurements berries person patterns net',
+'boiler obligation millions passages significance addresses pick confidences mornings harbors',
+'legging turbine nameplate burn inference partners look victim indicator skins']
+
+    $('#randomtext').text(randomWord[0] + " " + randomWord[1])
     try {
       $('#spinner').hide();
       // webkit shim

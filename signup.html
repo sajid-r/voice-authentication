@@ -31,7 +31,10 @@
           <input type="name" name="inputName" id="inputName" class="form-control" placeholder="Username">
           <label for="pswrd" class="sr-only">Password</label>
           <input type="password" name="pswrd" id="pswrd" class="form-control" placeholder="Password">
-          <p >Record your voice (Recommended 30 seconds minimum)</p>
+          <p >Record your voice (Read the following words)</p>
+          <br>
+          <p id="randomtext" style="font-size: 16px"></p>
+          <br>
           
           <button class="btn btn-default" type="button" onclick="startRecording(this);">record</button>
           <button class="btn btn-default" type="button" onclick="stopRecording(this);" disabled>stop</button>
@@ -127,6 +130,14 @@
   }
 
   window.onload = function init() {
+    var randomWord = ['adjustments lift folders conversions retailer characteristics secretary fathoms electrons twos',
+'patterns pupil fillers rigging fractions hoofs procurements admiral agreement illustrations',
+'item soap compresses regrets schoolhouses mists linkages notes leg cements',
+'exchanger beliefs curves caves rakes measurements berries person patterns net',
+'boiler obligation millions passages significance addresses pick confidences mornings harbors',
+'legging turbine nameplate burn inference partners look victim indicator skins']
+
+    $('#randomtext').text(randomWord[0] + " " + randomWord[1])
     try {
       $('#spinner').hide();
       // webkit shim
