@@ -8,8 +8,9 @@ import json
 from flask_cors import CORS, cross_origin
 import http.client, urllib.request, urllib.parse, urllib.error, base64
 import requests
-from voiceauth.VoiceIt import *
-#from nlpsuite.spellchecker import spellchecker
+import firebase_admin
+from firebase_admin import credentials
+
 
 #
 # error handling
@@ -19,8 +20,15 @@ app = Flask(__name__)
 api = Api(app)
 
 msApiKey = "fbe9b16688bf4ba98e8d5d3631f10472"
-voiceItApiKey = "8dcc7e2b8f2944caa087cbdea16f8a4a"
-#spell = spellchecker()
+
+cred = credentials.Certificate("./voiceauth/voiceauthkey.json")
+firebase_admin.initialize_app(cred, {
+    'databaseURL': 'https://voiceauth-88046.firebaseio.com/'
+})
+
+ref = db.reference('/users')
+# print ref.get()
+
 
 @app.errorhandler(400)
 def bad_request(error=None):
@@ -57,6 +65,7 @@ def internal_error(error=None):
     
 #Routing function
 
+##Returns the UID for a username
 @app.route('/voiceauth/register', methods=['POST', 'OPTIONS'])
 @cross_origin()
 def register():
@@ -77,5 +86,34 @@ def register():
 
     response = requests.request("POST", url, headers=headers, data=body)
     data = response.json()
+    msUID = data['identificationProfileId']
+
+    ##voiceIt
+    
 
     return jsonify({'identificationProfileId': data['identificationProfileId']}), 201
+
+
+
+##Check if username exists, if not then create a uname in firebase and store pass
+@app.route('/voiceauth/signup', methods=['POST', 'OPTIONS'])
+@cross_origin()
+def signup():
+  if not request.json or not 'username' in request.json  or not 'password' in request.json:
+        abort(400)
+
+  username = request.json['username']
+  password = request.json['password']
+
+  snapshot = ref.child(username).child(password).get()
+
+  if len(snapshot)!=0:
+    return jsonify({"result":"already exists"}), 201
+
+  else:
+    ref.push({
+      ""+username:{
+          'password':password
+        }
+      })
+    return jsonify({"result":"sucessful"}), 201
