@@ -150,7 +150,7 @@
 
 
         $.ajax({
-            url: "https://westus.api.cognitive.microsoft.com/spid/v1.0/identify?identificationProfileIds="+profileId+ "&" + $.param(params),
+            url: "https://westus.api.cognitive.microsoft.com/spid/v1.0/verify?verificationProfileId="+profileId,
             beforeSend: function(xhrObj){
                 // Request headers
                 xhrObj.setRequestHeader("Content-Type","application/octet-stream");
@@ -163,9 +163,14 @@
         })
         .done(function(data) {
             $('#spinner').hide();
-            alert("success");
-            console.log(data);
-            window.location.href = "/voice-authentication/static/hurray.gif"
+            if(data.result == "Accept"){
+              alert("Login Successful");
+              console.log(data);
+              window.location.href = "/voice-authentication/static/hurray.gif"
+            }
+            else
+              alert("Login failed. Please Try again.")
+            
         })
         .fail(function() {
             alert("error");
