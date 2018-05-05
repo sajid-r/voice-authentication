@@ -202,13 +202,7 @@ def main(_):
             for i in xrange(FLAGS.num_clones):
                 with tf.device('/gpu:%d' % i):
                     with tf.name_scope('%s_%d' % ('tower', i)) as scope:
-                        """
-                        Two distance metric are defined:
-                           1 - distance_weighted: which is a weighted average of the distance between two structures.
-                           2 - distance_l2: which is the regular l2-norm of the two networks outputs.
-                        Place holders
-
-                        """
+                      
                         ########################################
                         ######## Outputs of two networks #######
                         ########################################
@@ -249,11 +243,7 @@ def main(_):
                             # Accuracy calculation
                             accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
 
-                            # # ##### call the optimizer ######
-                            # # # TODO: call optimizer object outside of this gpu environment
-                            # #
-                            # # Reuse variables for the next tower.
-                            # tf.get_variable_scope().reuse_variables()
+                          
 
         #################################################
         ########### Summary Section #####################
@@ -286,9 +276,7 @@ def main(_):
             # # Merge all summaries together.
             # summary_op = tf.summary.merge(list(summaries), name='summary_op')
 
-    ###########################
-    ######## ######## #########
-    ###########################
+
 
     with tf.Session(graph=graph, config=tf.ConfigProto(allow_soft_placement=True)) as sess:
 

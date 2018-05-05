@@ -233,11 +233,7 @@ def main(_):
                             # Accuracy calculation
                             accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
 
-                            # # ##### call the optimizer ######
-                            # # # TODO: call optimizer object outside of this gpu environment
-                            # #
-                            # # Reuse variables for the next tower.
-                            # tf.get_variable_scope().reuse_variables()
+                        
 
         #################################################
         ########### Summary Section #####################
@@ -251,10 +247,6 @@ def main(_):
             x = end_points_speech[end_point]
             summaries.add(tf.summary.scalar('sparsity_speech/' + end_point,
                                             tf.nn.zero_fraction(x)))
-
-    ###########################
-    ######## ######## #########
-    ###########################
 
     with tf.Session(graph=graph, config=tf.ConfigProto(allow_soft_placement=True)) as sess:
 
